@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "298720004765",
+    "project_id": "rinky-boiler",
+    "storage_bucket": "rinky-boiler.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298720004765:android:474341627072db1e2d6274",
+        "android_client_info": {
+          "package_name": "com.evdt.rinkyboiler"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKo_CEUjjfSCJ0nbSCZyUqg2L4aW5f8X0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
