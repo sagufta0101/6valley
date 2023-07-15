@@ -83,20 +83,20 @@ class _SignInWidgetState extends State<SignInWidget> {
       //     backgroundColor: Colors.red,
       //   ));
       // }
-      // else {
-      //   if (Provider.of<AuthProvider>(context, listen: false).isRemember) {
-      //     Provider.of<AuthProvider>(context, listen: false)
-      //         .saveUserEmail(_email, _password);
-      //   } else {
-      //     Provider.of<AuthProvider>(context, listen: false)
-      //         .clearUserEmailAndPassword();
-      //   }
-      //
-      //   loginBody.email = _email;
-      //   loginBody.password = _password;
-      //   await Provider.of<AuthProvider>(context, listen: false)
-      //       .login(loginBody, route);
-      // }
+      else {
+        if (Provider.of<AuthProvider>(context, listen: false).isRemember) {
+          Provider.of<AuthProvider>(context, listen: false)
+              .saveUserEmail(_email, _password);
+        } else {
+          Provider.of<AuthProvider>(context, listen: false)
+              .clearUserEmailAndPassword();
+        }
+
+        loginBody.email = _email;
+        loginBody.password = _password;
+        await Provider.of<AuthProvider>(context, listen: false)
+            .login(loginBody, route);
+      }
     }
   }
 
