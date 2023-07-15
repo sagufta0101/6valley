@@ -1,26 +1,45 @@
 {
   "project_info": {
-    "project_number": "298720004765",
-    "project_id": "rinky-boiler",
-    "storage_bucket": "rinky-boiler.appspot.com"
+    "project_number": "1090024116960",
+    "firebase_url": "https://minjacart-2651a-default-rtdb.firebaseio.com",
+    "project_id": "minjacart-2651a",
+    "storage_bucket": "minjacart-2651a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:298720004765:android:474341627072db1e2d6274",
+        "mobilesdk_app_id": "1:1090024116960:android:60e33d9425a23b6b757685",
         "android_client_info": {
-          "package_name": "com.evdt.rinkyboiler"
+          "package_name": "com.sunground.minjacart"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1090024116960-jb8ut3vearto9377uml7sh57j29p162n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunground.minjacart",
+            "certificate_hash": "1e2dd04876c92af29720c3cc2f16db2efcd634fd"
+          }
+        },
+        {
+          "client_id": "1090024116960-r59lmj25gstah852rk2h191v45q0nmdt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAKo_CEUjjfSCJ0nbSCZyUqg2L4aW5f8X0"
+          "current_key": "AIzaSyAJy8LFJZImXrhsTgjw8P4hHCC8nceIE1U"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090024116960-r59lmj25gstah852rk2h191v45q0nmdt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

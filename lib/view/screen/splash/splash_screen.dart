@@ -130,11 +130,28 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset(
-                        Images.splashScreenLogo,
-                        height: 250.0,
-                        fit: BoxFit.scaleDown,
-                        width: 250.0,
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 80),
+                            child: Image.asset(
+                              Images.splashScreenLogo,
+                              height: 100.0,
+                              fit: BoxFit.scaleDown,
+                              width: 100.0,
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.01,
+                          ),
+                          Text('Minjacart',
+                            style: TextStyle(
+                                fontSize: 30,
+                               color: Colors.white,
+
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

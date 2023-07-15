@@ -29,7 +29,7 @@
     </queries>
 
     <application
-        android:label="RB Group"
+        android:label="Minjacart"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
