@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/body/login_model.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
@@ -16,7 +17,7 @@ import 'package:flutter_sixvalley_ecommerce/view/screen/auth/widget/mobile_verif
 import 'package:flutter_sixvalley_ecommerce/view/screen/auth/widget/social_login_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/dashboard/dashboard_screen.dart';
 import 'package:provider/provider.dart';
-
+import 'code_picker_widget.dart';
 import 'otp_verification_screen.dart';
 
 class SignInWidget extends StatefulWidget {
@@ -28,15 +29,25 @@ class _SignInWidgetState extends State<SignInWidget> {
   TextEditingController _emailController;
   TextEditingController _passwordController;
   GlobalKey<FormState> _formKeyLogin;
+  String _countryDialCode = "+880";
 
   @override
   void initState() {
     super.initState();
+    _countryDialCode = CountryCode.fromCountryCode(
+            Provider.of<SplashProvider>(context, listen: false)
+                .configModel
+                .countryCode)
+        .dialCode;
     _formKeyLogin = GlobalKey<FormState>();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    _emailController.text = Provider.of<AuthProvider>(context, listen: false).getUserEmail() ?? null;
-    _passwordController.text = Provider.of<AuthProvider>(context, listen: false).getUserPassword() ?? null;
+    _emailController.text =
+        Provider.of<AuthProvider>(context, listen: false).getUserEmail() ??
+            null;
+    _passwordController.text =
+        Provider.of<AuthProvider>(context, listen: false).getUserPassword() ??
+            null;
   }
 
   @override
@@ -54,58 +65,97 @@ class _SignInWidgetState extends State<SignInWidget> {
     if (_formKeyLogin.currentState.validate()) {
       _formKeyLogin.currentState.save();
 
-      String _email = _emailController.text.trim();
+      String _phone = _emailController.text.trim();
+
+      String _email = _countryDialCode + _emailController.text.trim();
+
       String _password = _passwordController.text.trim();
 
-      if (_email.isEmpty) {
+      if (_phone.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(getTranslated('EMAIL_MUST_BE_REQUIRED', context)),
+          content: Text(getTranslated('PHONE_MUST_BE_REQUIRED', context)),
           backgroundColor: Colors.red,
         ));
-      } else if (_password.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(getTranslated('PASSWORD_MUST_BE_REQUIRED', context)),
-          backgroundColor: Colors.red,
-        ));
-      } else {
-
+      }
+      // else if (_password.isEmpty) {
+      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     content: Text(getTranslated('PASSWORD_MUST_BE_REQUIRED', context)),
+      //     backgroundColor: Colors.red,
+      //   ));
+      // }
+      else {
         if (Provider.of<AuthProvider>(context, listen: false).isRemember) {
-          Provider.of<AuthProvider>(context, listen: false).saveUserEmail(_email, _password);
+          Provider.of<AuthProvider>(context, listen: false)
+              .saveUserEmail(_email, _password);
         } else {
-          Provider.of<AuthProvider>(context, listen: false).clearUserEmailAndPassword();
+          Provider.of<AuthProvider>(context, listen: false)
+              .clearUserEmailAndPassword();
         }
 
         loginBody.email = _email;
         loginBody.password = _password;
-        await Provider.of<AuthProvider>(context, listen: false).login(loginBody, route);
+        await Provider.of<AuthProvider>(context, listen: false)
+            .login(loginBody, route);
       }
     }
   }
 
-  route(bool isRoute, String token, String temporaryToken, String errorMessage) async {
+  route(bool isRoute, String token, String temporaryToken,
+      String errorMessage) async {
+    String _phone = _countryDialCode + _emailController.text.trim();
     if (isRoute) {
-      if(token==null || token.isEmpty){
-        if(Provider.of<SplashProvider>(context,listen: false).configModel.emailVerification){
-          Provider.of<AuthProvider>(context, listen: false).checkEmail(_emailController.text.toString(),
-              temporaryToken).then((value) async {
+      if (token == null || token.isEmpty) {
+        if (Provider.of<SplashProvider>(context, listen: false)
+            .configModel
+            .emailVerification) {
+          Provider.of<AuthProvider>(context, listen: false)
+              .checkEmail(_emailController.text.toString(), temporaryToken)
+              .then((value) async {
             if (value.isSuccess) {
-              Provider.of<AuthProvider>(context, listen: false).updateEmail(_emailController.text.toString());
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => VerificationScreen(
-                  temporaryToken,'',_emailController.text.toString())), (route) => false);
-
+              Provider.of<AuthProvider>(context, listen: false)
+                  .updateEmail(_emailController.text.toString());
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => VerificationScreen(temporaryToken, '',
+                          _emailController.text.toString())),
+                  (route) => false);
             }
           });
-        }else if(Provider.of<SplashProvider>(context,listen: false).configModel.phoneVerification){
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => MobileVerificationScreen(
-              temporaryToken)), (route) => false);
+        } else if (Provider.of<SplashProvider>(context, listen: false)
+            .configModel
+            .phoneVerification) {
+          // Navigator.pushAndRemoveUntil(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (_) => MobileVerificationScreen(temporaryToken)),
+          //     (route) => false);
+          Provider.of<AuthProvider>(context, listen: false)
+              .checkPhone(_phone, temporaryToken)
+              .then((value) async {
+            if (value.isSuccess) {
+              Provider.of<AuthProvider>(context, listen: false)
+                  .updatePhone(_phone);
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          VerificationScreen(temporaryToken, _phone, '')),
+                  (route) => false);
+            }
+          });
         }
-      }
-      else{
-        await Provider.of<ProfileProvider>(context, listen: false).getUserInfo(context);
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => DashBoardScreen()), (route) => false);
+      } else {
+        await Provider.of<ProfileProvider>(context, listen: false)
+            .getUserInfo(context);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => DashBoardScreen()),
+            (route) => false);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red));
     }
   }
 
@@ -114,109 +164,153 @@ class _SignInWidgetState extends State<SignInWidget> {
     Provider.of<AuthProvider>(context, listen: false).isRemember;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.MARGIN_SIZE_LARGE),
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.MARGIN_SIZE_LARGE),
       child: Form(
         key: _formKeyLogin,
         child: ListView(
-          padding: EdgeInsets.symmetric(vertical: Dimensions.PADDING_SIZE_SMALL),
+          padding:
+              EdgeInsets.symmetric(vertical: Dimensions.PADDING_SIZE_SMALL),
           children: [
-
+            // Container(
+            //     margin: EdgeInsets.only(bottom: Dimensions.MARGIN_SIZE_SMALL),
+            //     child: CustomTextField(
+            //       hintText:
+            //           getTranslated('ENTER_YOUR_EMAIL_or_mobile', context),
+            //       focusNode: _emailNode,
+            //       nextNode: _passNode,
+            //       textInputType: TextInputType.emailAddress,
+            //       controller: _emailController,
+            //     )),
 
             Container(
-                margin:
-                EdgeInsets.only(bottom: Dimensions.MARGIN_SIZE_SMALL),
-                child: CustomTextField(
-                  hintText: getTranslated('ENTER_YOUR_EMAIL_or_mobile', context),
-                  focusNode: _emailNode,
-                  nextNode: _passNode,
-                  textInputType: TextInputType.emailAddress,
+              margin: EdgeInsets.only(
+                  left: Dimensions.MARGIN_SIZE_DEFAULT,
+                  right: Dimensions.MARGIN_SIZE_DEFAULT,
+                  top: Dimensions.MARGIN_SIZE_SMALL),
+              child: Row(children: [
+                CodePickerWidget(
+                  onChanged: (CountryCode countryCode) {
+                    _countryDialCode = countryCode.dialCode;
+                  },
+                  initialSelection: _countryDialCode,
+                  favorite: [_countryDialCode],
+                  showDropDownButton: true,
+                  padding: EdgeInsets.zero,
+                  showFlagMain: true,
+                  textStyle: TextStyle(
+                      color: Theme.of(context).textTheme.displayLarge.color),
+                ),
+                Expanded(
+                    child: CustomTextField(
+                  hintText: getTranslated('ENTER_MOBILE_NUMBER', context),
                   controller: _emailController,
-                )),
-
-
-
-            Container(
-                margin:
-                EdgeInsets.only(bottom: Dimensions.MARGIN_SIZE_DEFAULT),
-                child: CustomPasswordTextField(
-                  hintTxt: getTranslated('ENTER_YOUR_PASSWORD', context),
+                  focusNode: _emailNode,
+                  isPhoneNumber: true,
                   textInputAction: TextInputAction.done,
-                  focusNode: _passNode,
-                  controller: _passwordController,
+                  textInputType: TextInputType.phone,
                 )),
+              ]),
+            ),
 
-
+            // Container(
+            //     margin:
+            //     EdgeInsets.only(bottom: Dimensions.MARGIN_SIZE_DEFAULT),
+            //     child: CustomPasswordTextField(
+            //       hintTxt: getTranslated('ENTER_YOUR_PASSWORD', context),
+            //       textInputAction: TextInputAction.done,
+            //       focusNode: _passNode,
+            //       controller: _passwordController,
+            //     )),
 
             Container(
               margin: EdgeInsets.only(right: Dimensions.MARGIN_SIZE_SMALL),
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Row(children: [
-                  Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) => Checkbox(
-                      checkColor: ColorResources.WHITE,
-                      activeColor: Theme.of(context).primaryColor,
-                      value: authProvider.isRemember,
-                      onChanged: authProvider.updateRemember,),),
-
-
-                  Text(getTranslated('REMEMBER', context), style: titilliumRegular),
-                ],),
-
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) => Checkbox(
+                          checkColor: ColorResources.WHITE,
+                          activeColor: Theme.of(context).primaryColor,
+                          value: authProvider.isRemember,
+                          onChanged: authProvider.updateRemember,
+                        ),
+                      ),
+                      Text(getTranslated('REMEMBER', context),
+                          style: titilliumRegular),
+                    ],
+                  ),
                   InkWell(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ForgetPasswordScreen())),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => ForgetPasswordScreen())),
                     child: Text(getTranslated('FORGET_PASSWORD', context),
                         style: titilliumRegular.copyWith(
-                        color: ColorResources.getLightSkyBlue(context))),
+                            color: ColorResources.getLightSkyBlue(context))),
                   ),
                 ],
               ),
             ),
 
-
-
             Container(
               margin: EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 30),
-              child: Provider.of<AuthProvider>(context).isLoading ?
-              Center(
-                child: CircularProgressIndicator(
-                  valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor,),),) :
-              CustomButton(onTap: loginUser, buttonText: getTranslated('SIGN_IN', context)),),
+              child: Provider.of<AuthProvider>(context).isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    )
+                  : CustomButton(
+                      onTap: loginUser,
+                      buttonText: getTranslated('SIGN_IN', context)),
+            ),
             SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
-
-
 
             SocialLoginWidget(),
             SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
 
-            Center(child: Text(getTranslated('OR', context),
-                style: titilliumRegular.copyWith(fontSize: Dimensions.FONT_SIZE_DEFAULT))),
-
-
+            Center(
+                child: Text(getTranslated('OR', context),
+                    style: titilliumRegular.copyWith(
+                        fontSize: Dimensions.FONT_SIZE_DEFAULT))),
 
             GestureDetector(
               onTap: () {
-                if (!Provider.of<AuthProvider>(context, listen: false).isLoading) {
-                  Provider.of<CartProvider>(context, listen: false).getCartData();
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => DashBoardScreen()),
-                          (route) => false);
+                if (!Provider.of<AuthProvider>(context, listen: false)
+                    .isLoading) {
+                  Provider.of<CartProvider>(context, listen: false)
+                      .getCartData();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => DashBoardScreen()),
+                      (route) => false);
                 }
               },
               child: Container(
-                margin: EdgeInsets.only(left: Dimensions.MARGIN_SIZE_AUTH, right: Dimensions.MARGIN_SIZE_AUTH,
+                margin: EdgeInsets.only(
+                    left: Dimensions.MARGIN_SIZE_AUTH,
+                    right: Dimensions.MARGIN_SIZE_AUTH,
                     top: Dimensions.MARGIN_SIZE_AUTH_SMALL),
-                width: double.infinity, height: 40, alignment: Alignment.center,
+                width: double.infinity,
+                height: 40,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.transparent, borderRadius: BorderRadius.circular(6),),
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(getTranslated('CONTINUE_AS_GUEST', context),
-                    style: titleHeader.copyWith(color: ColorResources.getPrimary(context))),
+                    style: titleHeader.copyWith(
+                        color: ColorResources.getPrimary(context))),
               ),
             ),
           ],
         ),
       ),
     );
-
-
   }
-
 }
